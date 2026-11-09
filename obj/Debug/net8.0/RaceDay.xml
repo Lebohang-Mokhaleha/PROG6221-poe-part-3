@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RaceDay</name>
+    </assembly>
+    <members>
+        <member name="M:RaceDay.Controllers.AuthController.Register(RaceDay.DTOs.RegisterDto)">
+            <summary>Registers a new Participant account.</summary>
+            <remarks>
+            The role is always Participant. Organisers are created by the system, not through this endpoint.
+            </remarks>
+            <param name="dto">Name, email and a password of at least 6 characters.</param>
+            <response code="201">Account created. Returns the user (no password).</response>
+            <response code="400">Validation failed.</response>
+            <response code="409">Email already in use.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.AuthController.Login(RaceDay.DTOs.LoginDto)">
+            <summary>Logs in and starts a session.</summary>
+            <remarks>The session stores the user's ID and role for all later requests.</remarks>
+            <param name="dto">Email and password.</param>
+            <response code="200">Logged in. Returns the user and their role.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Invalid email or password.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.AuthController.Logout">
+            <summary>Logs out and clears the session.</summary>
+            <remarks>Safe to call even if you are not logged in.</remarks>
+            <response code="204">Session cleared.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.CategoriesController.GetForEvent(System.Int32)">
+            <summary>Lists all categories for one event.</summary>
+            <remarks>Public, no login needed.</remarks>
+            <param name="eventId">The event's ID.</param>
+            <response code="200">Array of categories.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.CategoriesController.Create(System.Int32,RaceDay.DTOs.CategoryDto)">
+            <summary>Adds a category to an event.</summary>
+            <remarks>Organisers only, and only for events they created.</remarks>
+            <param name="eventId">The event's ID.</param>
+            <param name="dto">Category name, distance in km, entry fee and max participants.</param>
+            <response code="201">Category created.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.CategoriesController.Update(System.Int32,RaceDay.DTOs.CategoryDto)">
+            <summary>Updates a category.</summary>
+            <remarks>Organisers only, and only for events they created.</remarks>
+            <param name="id">The category's ID.</param>
+            <param name="dto">The new category details.</param>
+            <response code="200">The updated category.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No category with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.CategoriesController.Delete(System.Int32)">
+            <summary>Deletes a category.</summary>
+            <remarks>Organisers only, and only for events they created.</remarks>
+            <param name="id">The category's ID.</param>
+            <response code="204">Category deleted.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No category with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EnrolmentsController.Enrol(RaceDay.DTOs.EnrolDto)">
+            <summary>Enrols the logged-in Participant into a category.</summary>
+            <remarks>Participants only. Fails if the category doesn't exist, is full, or you are already enrolled.</remarks>
+            <param name="dto">The ID of the category to join.</param>
+            <response code="201">Enrolment created.</response>
+            <response code="400">Category doesn't exist or is full.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not a Participant.</response>
+            <response code="409">Already enrolled in this category.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EnrolmentsController.GetMine">
+            <summary>Lists the logged-in Participant's own enrolments.</summary>
+            <remarks>Participants only. You only ever see your own enrolments.</remarks>
+            <response code="200">Array of enrolments.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not a Participant.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EnrolmentsController.GetForEvent(System.Int32)">
+            <summary>Lists everyone enrolled in an event.</summary>
+            <remarks>Organisers only, and only for events they created.</remarks>
+            <param name="eventId">The event's ID.</param>
+            <response code="200">Array of enrolments with participant details.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EnrolmentsController.Cancel(System.Int32)">
+            <summary>Cancels the logged-in Participant's own enrolment.</summary>
+            <remarks>Participants only, and only their own enrolments.</remarks>
+            <param name="id">The enrolment's ID.</param>
+            <response code="204">Enrolment cancelled.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not a Participant, or not your enrolment.</response>
+            <response code="404">No enrolment with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.GetAll">
+            <summary>Lists all upcoming events.</summary>
+            <remarks>Public, no login needed. Only events from today onwards are returned.</remarks>
+            <response code="200">Array of upcoming events.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.GetOne(System.Int32)">
+            <summary>Gets the full details of one event.</summary>
+            <remarks>Public, no login needed.</remarks>
+            <param name="id">The event's ID.</param>
+            <response code="200">The event.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.Create(RaceDay.DTOs.EventDto)">
+            <summary>Creates a new event.</summary>
+            <remarks>Organisers only. The event is linked to the logged-in Organiser automatically.</remarks>
+            <param name="dto">Event name, date, location, and optional description and route map link.</param>
+            <response code="201">Event created.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Logged in, but not an Organiser.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.Update(System.Int32,RaceDay.DTOs.EventDto)">
+            <summary>Updates an event.</summary>
+            <remarks>Organisers only, and only the Organiser who created the event.</remarks>
+            <param name="id">The event's ID.</param>
+            <param name="dto">The new event details.</param>
+            <response code="200">The updated event.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.Delete(System.Int32)">
+            <summary>Deletes an event.</summary>
+            <remarks>Organisers only, and only the Organiser who created the event.</remarks>
+            <param name="id">The event's ID.</param>
+            <response code="204">Event deleted.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.GetMyEvents">
+            <summary>Organiser's own events, including past ones.</summary>
+        </member>
+        <member name="M:RaceDay.Controllers.EventsController.UploadBanner(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>Uploads a banner image for one of the organiser's events.</summary>
+        </member>
+        <member name="M:RaceDay.Controllers.ResultsController.Capture(System.Int32,RaceDay.DTOs.ResultDto)">
+            <summary>Captures a race result for an enrolment.</summary>
+            <remarks>Organisers only, and only for events they created. One result per enrolment.</remarks>
+            <param name="id">The enrolment's ID.</param>
+            <param name="dto">Finish time (hh:mm:ss), position, and status (Finished, DNF, DNS or DSQ).</param>
+            <response code="201">Result created.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No enrolment with that ID.</response>
+            <response code="409">A result already exists for this enrolment.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.ResultsController.Update(System.Int32,RaceDay.DTOs.ResultDto)">
+            <summary>Updates an existing result.</summary>
+            <remarks>Organisers only, and only for events they created.</remarks>
+            <param name="id">The result's ID.</param>
+            <param name="dto">The new finish time, position and status.</param>
+            <response code="200">The updated result.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not an Organiser, or not the owner of this event.</response>
+            <response code="404">No result with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.ResultsController.GetMine">
+            <summary>Shows the logged-in Participant's own results history.</summary>
+            <remarks>Participants only. You only ever see your own results.</remarks>
+            <response code="200">Array of results.</response>
+            <response code="401">Not logged in.</response>
+            <response code="403">Not a Participant.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.ResultsController.GetForEvent(System.Int32)">
+            <summary>Public leaderboard for an event.</summary>
+            <remarks>Public, no login needed. Sorted by position, with unplaced results last.</remarks>
+            <param name="eventId">The event's ID.</param>
+            <response code="200">Array of results.</response>
+            <response code="404">No event with that ID.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.UsersController.GetMe">
+            <summary>Returns the logged-in user's own profile.</summary>
+            <remarks>Any logged-in user (Organiser or Participant). The user is found from the session.</remarks>
+            <response code="200">The user's profile.</response>
+            <response code="401">Not logged in.</response>
+        </member>
+        <member name="M:RaceDay.Controllers.UsersController.UpdateMe(RaceDay.DTOs.UpdateProfileDto)">
+            <summary>Updates the logged-in user's name and phone.</summary>
+            <remarks>Any logged-in user. Email and role cannot be changed here.</remarks>
+            <param name="dto">New name and an optional phone number.</param>
+            <response code="200">The updated profile.</response>
+            <response code="400">Validation failed.</response>
+            <response code="401">Not logged in.</response>
+        </member>
+        <member name="T:RaceDay.Migrations.AddBannerImageUrl">
+            <inheritdoc />
+        </member>
+        <member name="M:RaceDay.Migrations.AddBannerImageUrl.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaceDay.Migrations.AddBannerImageUrl.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaceDay.Migrations.AddBannerImageUrl.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:RaceDay.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:RaceDay.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaceDay.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RaceDay.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

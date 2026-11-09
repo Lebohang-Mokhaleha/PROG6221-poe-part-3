@@ -1,0 +1,2 @@
+wwwroot\uploads\banners\.gitkeep
+wwwroot\uploads\banners\event-1-c4b92d99-d54c-405d-a31d-39ff793f218b.png
